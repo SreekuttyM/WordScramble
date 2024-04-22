@@ -8,48 +8,41 @@
 import SwiftUI
 
 struct ContentView: View {
-    let people = ["Finn", "Leia", "Luke", "Rey"]
+   @State var usedWords : [String] = []
+   @State var rootWord : String = ""
+   @State var newWord : String = ""
 
     var body: some View {
-        List {
+        NavigationStack {
             Section {
-                Text("Hello")
-                Text("Hello")
+                TextField("Enter a word here", text: $newWord).textInputAutocapitalization(.never)
             }
-            Section {
-                ForEach(0..<2) {_ in
-                    Text("Inside Hello")
+            
+            List {
+                ForEach(usedWords,id:\.self) { word in
+                    HStack {
+                        Image(systemName: "\(word.count).circle")
+                        Text("\(word)")
+                    }
                 }
             }
-            Section {
-                Text("Hello")
-                Text("Hello")
+        }.navigationTitle($rootWord)
+            .onSubmit {
+                addNewWord()
             }
-
-        }.listStyle(.insetGrouped)
         
-        List(people, id:\.self) {
-            Text("Hello \($0)")
-        }
-         
-        
-        List {
-            Section {
-                Text("Hello")
-                Text("Hello")
-            }
-            Section {
-                ForEach(people,id:\.self) {
-                    Text("Hello \($0)")
-                }
-            }
-            Section {
-                Text("Hello")
-                Text("Hello")
-            }
-
-        }
        
+    }
+    
+    func addNewWord() {
+        let trimmedWord = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        if(trimmedWord.count > 0) {
+            withAnimation {
+                usedWords.insert(trimmedWord, at: 0)
+
+            }
+        }
+        newWord = ""
     }
 }
 

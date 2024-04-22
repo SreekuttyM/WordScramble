@@ -24,13 +24,32 @@ struct ContentView: View {
                 
                 Section {
                     ForEach(usedWords, id: \.self) { word in
-                        Text(word)
+                        HStack {
+                               Image(systemName: "\(word.count).circle")
+                               Text(word)
+                           }
                     }
                 }
                 
+                Section {
+                    Text("\(calculateScore())")
+
+                }
                 
-            }  .navigationTitle($rootWord)
+                
+            }.toolbar {
+                Button("Reset", action: startGame)
+            }
+            .navigationTitle($rootWord)
                 .onSubmit({
+                    guard isValidEnough(word: newWord.lowercased()) else {
+                        wordError(title: "Word not possible", message: "Be more original '\(rootWord)'!")
+                        return
+                    }
+                    guard isSameAsRoot(word: newWord.lowercased()) else {
+                        wordError(title: "Word not possible", message: "Oops!! Its the same '\(rootWord)'!")
+                        return
+                    }
                     guard  isOriginalWord(word: newWord.lowercased()) else {
                     wordError(title: "Word used already", message: "Be more original")
                         return
@@ -47,13 +66,30 @@ struct ContentView: View {
                     addNewWord()
                 })
                .onAppear(perform: startGame)
+            
         }.alert(wordErroralertTitle, isPresented: $showAlert) {}  message: {
             Text(wordErrorDescirption)
         }
     }
     
+    func calculateScore() -> String {
+        var isWin = false
+        if(usedWords.count > 3) {
+            return "Wow.. Congrations!!! You have won the game"
+        }
+        return usedWords.count > 1 ? "Try Hard... I know you can do more better" : ""
+    }
+    
     func isOriginalWord(word:String) -> Bool {
         return !usedWords.contains(word)
+    }
+    
+    func isValidEnough(word:String) -> Bool {
+        return word.count > 3
+    }
+    
+    func isSameAsRoot(word:String) -> Bool {
+        return word != rootWord
     }
     
     func isPossibleWord(word:String) -> Bool {
@@ -105,7 +141,8 @@ struct ContentView: View {
 
             
         }
-
+        usedWords = []
+        newWord = ""
     }
 }
 
